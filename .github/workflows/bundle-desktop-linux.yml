@@ -139,3 +139,8 @@ jobs:
           echo "=== File sizes ==="
           find ui/desktop/out/ -name "*.AppImage" -exec ls -lh {} \;
 
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AppImage
+          path: ui/desktop/out/
