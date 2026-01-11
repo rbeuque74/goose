@@ -134,5 +134,11 @@ jobs:
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v4
         with:
+          name: zip
+          path: ui/desktop/out/make/zip/linux/x64/*.zip
+
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
           name: AppImage
-          path: ui/desktop/out/
+          path: ui/desktop/out/make/AppImage/x64/*.AppImage
