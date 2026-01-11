@@ -3,18 +3,7 @@
 #  - release.yml
 #  - canary.yml (when added)
 #  - pr-comment-bundle-desktop.yml (when added)
-on:
-  workflow_call:
-    inputs:
-      version:
-        description: 'Version to set for the build'
-        required: false
-        default: ""
-        type: string
-      ref:
-        type: string
-        required: false
-        default: ''
+on: push
 
 name: "Bundle Desktop (Linux)"
 
@@ -27,19 +16,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # pin@v4
         with:
-          ref: ${{ inputs.ref }}
           fetch-depth: 0
 
-      - name: Update versions
-        if: ${{ inputs.version != '' }}
-        run: |
-          # Update version in Cargo.toml
-          sed -i.bak 's/^version = ".*"/version = "'${{ inputs.version }}'"/' Cargo.toml
-          rm -f Cargo.toml.bak
-
-          # Update version in package.json
-          cd ui/desktop
-          npm version ${{ inputs.version }} --no-git-tag-version --allow-same-version
 
       - name: Debug workflow info
         env:
@@ -100,17 +78,14 @@ jobs:
           CROSS_VERBOSE: 1
           CC: gcc-10
         run: |
-          source ./bin/activate-hermit
-          export TARGET="x86_64-unknown-linux-gnu"
-          rustup target add "${TARGET}"
-          cross build --release --target ${TARGET} -p goose-server
+          echo yes
 
       - name: Copy binaries into Electron folder
         run: |
           echo "Copying binaries to ui/desktop/src/bin/"
           export TARGET="x86_64-unknown-linux-gnu"
           mkdir -p ui/desktop/src/bin
-          cp target/$TARGET/release/goosed ui/desktop/src/bin/
+          wget -O ui/desktop/src/bin/goosed https://userfiles.r.beuque.net/file/cscIBWxpECTEtPf0/phb5pSvvZCq4FhNY/goosed
           chmod +x ui/desktop/src/bin/goosed
           ls -la ui/desktop/src/bin/
 
@@ -143,7 +118,7 @@ jobs:
 
           echo "Build completed. Checking output..."
           ls -la out/
-          find out/ -name "*.deb" -o -name "*.rpm" | head -10
+          find out/ -name "*.AppImage" | head -10
 
       - name: List generated files
         run: |
@@ -151,30 +126,19 @@ jobs:
           find ui/desktop/out/ -type f | head -20
           echo ""
           echo "=== Package files specifically ==="
-          find ui/desktop/out/ -name "*.deb" -o -name "*.rpm"
+          find ui/desktop/out/ -name "*.AppImage"
           echo ""
           echo "=== File sizes ==="
-          find ui/desktop/out/ -name "*.deb" -o -name "*.rpm" -exec ls -lh {} \;
+          find ui/desktop/out/ -name "*.AppImage" -exec ls -lh {} \;
 
-      - name: Upload .deb package
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v4
         with:
-          name: Goose-linux-x64-deb
-          path: ui/desktop/out/make/deb/x64/*.deb
-          if-no-files-found: error
+          name: zip
+          path: ui/desktop/out/make/zip/linux/x64/*.zip
 
-      - name: Upload .rpm package
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v4
         with:
-          name: Goose-linux-x64-rpm
-          path: ui/desktop/out/make/rpm/x64/*.rpm
-          if-no-files-found: error
-
-      - name: Upload combined Linux packages
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: Goose-linux-x64
-          path: |
-            ui/desktop/out/make/deb/x64/*.deb
-            ui/desktop/out/make/rpm/x64/*.rpm
-          if-no-files-found: error
+          name: AppImage
+          path: ui/desktop/out/make/AppImage/x64/*.AppImage

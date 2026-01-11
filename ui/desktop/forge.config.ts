@@ -93,6 +93,16 @@ module.exports = {
         },
       },
     },
+    {
+        name: "@reforged/maker-appimage",
+        config: {
+            options: {
+                categories: ["Development"],
+                bin: 'Goose',
+                icon: "src/images/icon.svg",
+            },
+        },
+    },
   ],
   plugins: [
     {
