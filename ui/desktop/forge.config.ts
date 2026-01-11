@@ -98,6 +98,7 @@ module.exports = {
         config: {
             options: {
                 categories: ["Development"],
+                bin: 'Goose',
                 icon: "src/images/icon.svg",
             },
         },
